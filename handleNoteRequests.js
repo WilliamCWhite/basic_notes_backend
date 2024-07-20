@@ -21,7 +21,7 @@ async function handleNoteGetRequest(req, res, paths, searches) {
             `, searchProperty, sortMethod);
         const dbResult = await client.query(sqlQuery);
 
-        res.setHeader('Content-Type', 'application/json');
+        
         res.end(JSON.stringify(dbResult.rows));
         //console.log(`Successfully processed query with searchProperty=${searchProperty} and sortMethod=${sortMethod}`);
     } catch (error) {
@@ -31,8 +31,27 @@ async function handleNoteGetRequest(req, res, paths, searches) {
     }
 }
 
-function handleNotePostRequest(req, res, paths, searches) {
+async function handleNotePostRequest(req, res) {
+    const client = await pool.connect();
 
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    })
+    req.on('end', async () => {
+        const data = JSON.parse(body);
+        console.log(data);
+        try {
+            const dbResult = await client.query(`
+                INSERT INTO notes(title, body)
+                VALUES ($1, $2)
+            `, [data.title, data.body]);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            client.release();
+        }
+    })
 }
 
 function handleNotePutRequest(req, res, paths, searches) {
