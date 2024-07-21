@@ -1,29 +1,16 @@
-import http from 'http'
 import pool from './db.js'
-import format from 'pg-format'
 
 async function handleNoteGetRequest(req, res, paths, searches) {
     const client = await pool.connect();
 
-    let searchProperty;
-    let sortMethod;
-    if (searches.length !== 0) {
-        [searchProperty, sortMethod] = searches[0].split('=');
-    } else {
-        [searchProperty, sortMethod] = ['time_modified', 'DESC']
-    }
-
     try {
-        const sqlQuery = format(`
+        const dbResult = await client.query(`
             SELECT *
             FROM notes
-            ORDER BY %I %s
-            `, searchProperty, sortMethod);
-        const dbResult = await client.query(sqlQuery);
-
-        
+            ORDER BY time_modified DESC
+            `);
+        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(dbResult.rows));
-        //console.log(`Successfully processed query with searchProperty=${searchProperty} and sortMethod=${sortMethod}`);
     } catch (error) {
         console.error(error);
     } finally {
@@ -45,7 +32,10 @@ async function handleNotePostRequest(req, res) {
             const dbResult = await client.query(`
                 INSERT INTO notes(title, body)
                 VALUES ($1, $2)
+                RETURNING *
             `, [data.title, data.body]);
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(dbResult.rows));
         } catch (error) {
             console.error(error);
         } finally {

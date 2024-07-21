@@ -1,4 +1,3 @@
-import pool from './db.js'
 import http from 'http'
 import parseURL from './parseURL.js'
 import { handleNoteGetRequest, handleNotePostRequest } from './handleNoteRequests.js'
@@ -8,13 +7,12 @@ const server = http.createServer(async (req, res) => {
     const method = req.method.toUpperCase();
     const [paths, searches] = parseURL(req.url); //paths.length will never be 0
 
-    console.log(`Request received! url = ${req.url} and method = ${req.method}`)
+    // console.log(`Request received! url = ${req.url} and method = ${req.method}`)
 
     res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5173');
     res.setHeader('Access-Control-Request-Method', '*');
 	res.setHeader('Access-Control-Allow-Methods', '*');
 	res.setHeader('Access-Control-Allow-Headers', '*');
-    res.setHeader('Content-Type', 'application/json');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
@@ -26,7 +24,6 @@ const server = http.createServer(async (req, res) => {
         if (method === 'GET') {
             handleNoteGetRequest(req, res, paths, searches);
         } else if (method === 'POST') {
-            console.log("detected that the method was post")
             handleNotePostRequest(req, res);
         }
     }
