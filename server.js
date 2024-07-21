@@ -1,6 +1,6 @@
 import http from 'http'
 import parseURL from './parseURL.js'
-import { handleNoteGetRequest, handleNotePostRequest } from './handleNoteRequests.js'
+import { handleNoteDeleteRequest, handleNoteGetRequest, handleNotePostRequest } from './handleNoteRequests.js'
 
 
 const server = http.createServer(async (req, res) => {
@@ -25,6 +25,8 @@ const server = http.createServer(async (req, res) => {
             handleNoteGetRequest(req, res, paths, searches);
         } else if (method === 'POST') {
             handleNotePostRequest(req, res);
+        } else if (method === 'DELETE') {
+            handleNoteDeleteRequest(req, res, paths);
         }
     }
 });

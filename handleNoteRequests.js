@@ -14,7 +14,7 @@ async function handleNoteGetRequest(req, res, paths, searches) {
     } catch (error) {
         console.error(error);
     } finally {
-        await client.release();
+        client.release();
     }
 }
 
@@ -44,12 +44,29 @@ async function handleNotePostRequest(req, res) {
     })
 }
 
+async function handleNoteDeleteRequest(req, res, paths) {
+    const client = await pool.connect();
+    const idToDelete = paths[1];
+    try {
+        const dbResult = await client.query(`
+            DELETE FROM notes
+            WHERE note_id = $1
+            RETURNING *
+        `, [idToDelete]);
+        console.log("We deleted a note, and this is the db result");
+        console.log(dbResult.rows);
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(dbResult.rows));
+    } catch (error) {
+        console.error(error);
+    } finally {
+        client.release();
+    }
+}
+
 function handleNotePutRequest(req, res, paths, searches) {
 
 }
 
-function handleNoteDeleteRequest(req, res, paths, searches) {
-
-}
 
 export {handleNoteGetRequest, handleNotePostRequest, handleNotePutRequest, handleNoteDeleteRequest}
