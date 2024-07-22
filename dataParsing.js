@@ -16,4 +16,5 @@ function parseURL(url) {
     return [paths, searches];
 }
 
-export default parseURL;
+
+export { parseURL }
