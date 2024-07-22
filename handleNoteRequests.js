@@ -44,6 +44,34 @@ async function handleNotePostRequest(req, res) {
     })
 }
 
+async function handleNotePutRequest(req, res, paths) {
+    const client = await pool.connect();
+
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    })
+    req.on('end', async () => {
+        const data = JSON.parse(body);
+        try {
+            const dbResult = await client.query(`
+                UPDATE notes
+                SET
+                    title = $1,
+                    body = $2,
+                    time_updated = $3
+                WHERE note_id = $4
+            `, [data.title, data.body, data.time_updated, paths[1]]);
+            res.setHeader('Content-type', 'application/json');
+            res.end(dbResult.rows);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            client.release();
+        }
+    })
+}
+
 async function handleNoteDeleteRequest(req, res, paths) {
     const client = await pool.connect();
     const idToDelete = paths[1];
@@ -62,10 +90,6 @@ async function handleNoteDeleteRequest(req, res, paths) {
     } finally {
         client.release();
     }
-}
-
-function handleNotePutRequest(req, res, paths, searches) {
-
 }
 
 
