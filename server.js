@@ -1,5 +1,5 @@
 import http from 'http'
-import { parseURL } from './dataParsing.js'
+import { parseURL, generateKey } from './functions.js'
 import { handleNoteDeleteRequest, handleNoteGetRequest, handleNotePostRequest, handleNotePutRequest } from './handleNoteRequests.js'
 
 
