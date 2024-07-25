@@ -34,9 +34,10 @@ const server = http.createServer(async (req, res) => {
         }
     }
     else if (paths[0] === 'users' && method === 'POST') {
-        if (searches) {
+        console.log(searches);
+        if (searches[0] === 'action=fetchUser') {
             handleFetchUserRequest(req, res);
-        } else {
+        } else if (searches[0] === 'action=createUser') {
             handleCreateUserRequest(req, res);
         }
     }

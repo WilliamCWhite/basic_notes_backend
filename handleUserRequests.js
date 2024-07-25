@@ -17,32 +17,30 @@ async function handleFetchUserRequest(req, res) {
             const exists = await doesUserExist(data.username);
             if (!exists) {
                 console.log(`user ${data.username} does not exist`);
-                res.status(404).send('Status: Not Found');
+                res.statusCode = 404
                 res.end();
-                client.release();
                 return;
             }
 
             const dbResult = await client.query(`
                 SELECT username, user_key
                 FROM users
-                WHERE username = $1 AND password = $2
+                WHERE username = $1 AND user_password = $2
             `, [data.username, data.password]);
 
             console.log(dbResult.rows);
 
             if (dbResult.rows.length === 0) {
-                console.log(`Couldn't find match with username ${data.username} and password ${data.password}`);
-                res.status(406).send('Status: Not Acceptable');
+                console.log(`Couldn't find match with username ${data.username} and user_password ${data.password}`);
+                res.statusCode = 406
                 res.end();
-                client.release();
                 return;
             }
 
             res.setHeader('Content-type', 'application/json')
             res.end(JSON.stringify({
-                username: dbResult.rows.username,
-                user_key: dbResult.rows.password
+                username: dbResult.rows[0].username,
+                user_key: dbResult.rows[0].user_key
             }))
 
         } catch (error) {
@@ -68,20 +66,19 @@ async function handleCreateUserRequest(req, res) {
         try {
             const usernameExists = await doesUserExist(data.username);
             if (usernameExists) {
-                res.status(406).send('Status: Not Acceptable');
+                res.statusCode = 406
                 res.end();
-                client.release();
                 return;
             }
             
             const userKey = generateKey();
 
             const insertResult = await client.query(`
-                INSERT INTO notes(username, password, user_key)
+                INSERT INTO users(username, user_password, user_key)
                 VALUES ($1, $2, $3)
             `, [data.username, data.password, userKey]);
 
-            res.status(201).send('Status: Created');
+            res.statusCode = 201
             res.setHeader('Content-type', 'application/json');
             res.end(JSON.stringify({
                 username: data.username,
@@ -103,21 +100,18 @@ async function doesUserExist(username) {
     try {
         const dbResult = await client.query(`
             SELECT username
-            FROM notes
+            FROM users
             WHERE username = $1
         `, [username]);
-        console.log("Following message is from doesUserExist");
-        console.log(dbResult.rows);
         if (dbResult.rows.length !== 0) {
-            client.release();
             result = true;
         } else {
             result = false;
         }
     } catch (error) {
-        console.error(error)
+        console.error(error);
     } finally {
-        client.release()
+        client.release();
     }
     return result;
 }
