@@ -1,6 +1,7 @@
 import http from 'http'
 import { parseURL, generateKey } from './functions.js'
 import { handleNoteDeleteRequest, handleNoteGetRequest, handleNotePostRequest, handleNotePutRequest } from './handleNoteRequests.js'
+import { handleFetchUserRequest, handleCreateUserRequest } from './handleUserRequests.js'
 
 
 const server = http.createServer(async (req, res) => {
@@ -30,6 +31,13 @@ const server = http.createServer(async (req, res) => {
         }
         else if (method === 'DELETE') {
             handleNoteDeleteRequest(req, res, paths);
+        }
+    }
+    else if (paths[0] === 'users' && method === 'POST') {
+        if (searches) {
+            handleFetchUserRequest(req, res);
+        } else {
+            handleCreateUserRequest(req, res);
         }
     }
 });
