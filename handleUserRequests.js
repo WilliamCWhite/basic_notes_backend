@@ -116,4 +116,24 @@ async function doesUserExist(username) {
     return result;
 }
 
-export { handleFetchUserRequest, handleCreateUserRequest }
+async function idFromKeyUsername(key, username) {
+    const client = await pool.connect();
+    try {
+        const dbResult = await client.query(`
+            SELECT user_id
+            FROM users
+            WHERE username = $1 AND user_key = $2    
+        `, [username, key])
+        if (dbResult.rows.length === 1) {
+            return dbResult.rows[0].user_id
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        client.release();
+    }
+}
+
+export { handleFetchUserRequest, handleCreateUserRequest, idFromKeyUsername }

@@ -1,12 +1,14 @@
 import http from 'http'
 import { parseURL, generateKey } from './functions.js'
 import { handleNoteDeleteRequest, handleNoteGetRequest, handleNotePostRequest, handleNotePutRequest } from './handleNoteRequests.js'
-import { handleFetchUserRequest, handleCreateUserRequest } from './handleUserRequests.js'
+import { handleFetchUserRequest, handleCreateUserRequest, idFromKeyUsername } from './handleUserRequests.js'
 
 
 const server = http.createServer(async (req, res) => {
     const method = req.method.toUpperCase();
     const [paths, searches] = parseURL(req.url); //paths.length will never be 0
+    console.log("Received the following request:");
+    console.log(req.url);
 
     // console.log(`Request received! url = ${req.url} and method = ${req.method}`)
 
@@ -22,6 +24,18 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (paths[0] === 'notes') {
+        if (!(req.headers.userauthenticationkey && paths.length > 1)) {
+            console.log("Received a request where there was either no userAuthenticationKey, or no user specified");
+            return;
+        }
+
+        const targetUsername = paths[1];
+        const targetKey = req.headers.userauthenticationkey;
+        const userId = await idFromKeyUsername(targetKey, targetUsername);
+        if (userId === false) {
+            console.log('The key and username did not match');
+        }
+
         if (method === 'GET') {
             handleNoteGetRequest(req, res, paths, searches);
         } else if (method === 'POST') {
