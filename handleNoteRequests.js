@@ -1,6 +1,6 @@
 import pool from './db.js'
 
-async function handleNoteGetRequest(req, res, paths, searches) {
+async function handleNoteGetRequest(req, res, paths, userId) {
     const client = await pool.connect();
 
     try {
@@ -18,7 +18,7 @@ async function handleNoteGetRequest(req, res, paths, searches) {
     }
 }
 
-async function handleNotePostRequest(req, res) {
+async function handleNotePostRequest(req, res, paths, userId) {
     const client = await pool.connect();
 
     let body = '';
@@ -44,7 +44,7 @@ async function handleNotePostRequest(req, res) {
     })
 }
 
-async function handleNotePutRequest(req, res, paths) {
+async function handleNotePutRequest(req, res, paths, userId) {
     const client = await pool.connect();
 
     let body = '';
@@ -61,7 +61,7 @@ async function handleNotePutRequest(req, res, paths) {
                     body = $2,
                     time_modified = $3
                 WHERE note_id = $4
-            `, [data.title, data.body, data.time_modified, paths[1]]);
+            `, [data.title, data.body, data.time_modified, paths[2]]);
         } catch (error) {
             console.error(error);
         } finally {
@@ -70,9 +70,9 @@ async function handleNotePutRequest(req, res, paths) {
     })
 }
 
-async function handleNoteDeleteRequest(req, res, paths) {
+async function handleNoteDeleteRequest(req, res, paths, userId) {
     const client = await pool.connect();
-    const idToDelete = paths[1];
+    const idToDelete = paths[2];
     try {
         const dbResult = await client.query(`
             DELETE FROM notes

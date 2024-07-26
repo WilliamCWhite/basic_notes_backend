@@ -37,14 +37,14 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (method === 'GET') {
-            handleNoteGetRequest(req, res, paths, searches);
+            handleNoteGetRequest(req, res, paths, userId);
         } else if (method === 'POST') {
-            handleNotePostRequest(req, res);
+            handleNotePostRequest(req, res, paths, userId);
         } else if (method === 'PUT') {
-            handleNotePutRequest(req, res, paths);
+            handleNotePutRequest(req, res, paths, userId);
         }
         else if (method === 'DELETE') {
-            handleNoteDeleteRequest(req, res, paths);
+            handleNoteDeleteRequest(req, res, paths, userId);
         }
     }
     else if (paths[0] === 'users' && method === 'POST') {
