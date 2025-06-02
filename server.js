@@ -10,10 +10,21 @@ const server = http.createServer(async (req, res) => {
     console.log("Received the following request:");
     console.log(req.url);
 
-    // console.log(`Request received! url = ${req.url} and method = ${req.method}`)
+    console.log(`Request received! url = ${req.url} and method = ${req.method}`)
 
-    res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5173');
-    res.setHeader('Access-Control-Request-Method', '*');
+    // Handle CORS
+    const allowedOrigins = [
+        "http://localhost:80/",
+        "http://localhost:5173/",
+        "http://williamcwhite.dev/",
+        "https://williamcwhite.dev/"
+    ];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin); 
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    res.setHeader('Access-Control-Request-Method', '*'); // maybe unnecessary
 	res.setHeader('Access-Control-Allow-Methods', '*');
 	res.setHeader('Access-Control-Allow-Headers', '*');
 
