@@ -12,6 +12,7 @@ const pool = new pg.Pool({
     host: env.NODE_DB_HOST
 });
 
+console.log(`${env.NODE_DB_USER} ${env.NODE_DB_DATABASE} ${env.NODE_DB_PASSWORD} ${env.NODE_DB_HOST} ${env.NODE_DB_PORT}`);
 export default pool;
 
 

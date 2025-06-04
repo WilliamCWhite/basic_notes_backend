@@ -5,7 +5,10 @@ function parseURL(url) {
     let paths;
     if (pathString !== undefined) {
         paths = pathString.split("/")//.shift();
-        paths.shift();
+        // normalize to everything after /api/
+        while (paths[0] == '' || paths[0] == 'api') {
+            paths.shift();
+        }
     }
     let searches;
     if (searchString !== undefined) {
