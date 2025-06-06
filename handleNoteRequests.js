@@ -4,13 +4,28 @@ async function handleNoteGetRequest(req, res, paths, userId) {
     const client = await pool.connect();
 
     try {
+        let finalResult;
         const dbResult = await client.query(`
             SELECT *
             FROM notes
+            WHERE user_id = $1
             ORDER BY time_modified DESC
-            `);
+            `, [userId]);
+
+        // If there are no notes associated with the user, create a placeholder note
+        if (dbResult.rows.length === 0) {
+            const createResult = await client.query(`
+                INSERT INTO notes (title, body, user_id)
+                VALUES ($1, $2, $3)
+                RETURNING *
+            `, ["placeholder", "this is a placeholder note", userId]);
+            finalResult = createResult;
+        }
+        else {
+            finalResult = dbResult;
+        }
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(dbResult.rows));
+        res.end(JSON.stringify(finalResult.rows));
     } catch (error) {
         console.error(error);
     } finally {
@@ -30,10 +45,10 @@ async function handleNotePostRequest(req, res, paths, userId) {
         console.log(data);
         try {
             const dbResult = await client.query(`
-                INSERT INTO notes(title, body)
-                VALUES ($1, $2)
+                INSERT INTO notes(title, body, user_id)
+                VALUES ($1, $2, $3)
                 RETURNING *
-            `, [data.title, data.body]);
+            `, [data.title, data.body, userId]);
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(dbResult.rows));
         } catch (error) {
