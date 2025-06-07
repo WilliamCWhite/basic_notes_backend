@@ -14,11 +14,12 @@ async function handleNoteGetRequest(req, res, paths, userId) {
 
         // If there are no notes associated with the user, create a placeholder note
         if (dbResult.rows.length === 0) {
+            const currentTime = new Date(Date.now()).toISOString();
             const createResult = await client.query(`
-                INSERT INTO notes (title, body, user_id)
-                VALUES ($1, $2, $3)
+                INSERT INTO notes (title, body, user_id, time_created, time_modified)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING *
-            `, ["placeholder", "this is a placeholder note", userId]);
+            `, ["placeholder", "this is a placeholder note", userId, currentTime, currentTime]);
             finalResult = createResult;
         }
         else {
@@ -45,10 +46,10 @@ async function handleNotePostRequest(req, res, paths, userId) {
         console.log(data);
         try {
             const dbResult = await client.query(`
-                INSERT INTO notes(title, body, user_id)
-                VALUES ($1, $2, $3)
+                INSERT INTO notes(title, body, user_id, time_created, time_modified)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING *
-            `, [data.title, data.body, userId]);
+            `, [data.title, data.body, userId, data.time_created, data.time_modified]);
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(dbResult.rows));
         } catch (error) {
