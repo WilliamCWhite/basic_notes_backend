@@ -78,6 +78,8 @@ async function handleNotePutRequest(req, res, paths, userId) {
                     time_modified = $3
                 WHERE note_id = $4
             `, [data.title, data.body, data.time_modified, paths[2]]);
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(dbResult.rows));
         } catch (error) {
             console.error(error);
         } finally {
