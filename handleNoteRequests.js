@@ -4,7 +4,6 @@ async function handleNoteGetRequest(req, res, paths, userId) {
     const client = await pool.connect();
 
     try {
-        let finalResult;
         const dbResult = await client.query(`
             SELECT *
             FROM notes
@@ -12,21 +11,8 @@ async function handleNoteGetRequest(req, res, paths, userId) {
             ORDER BY time_modified DESC
             `, [userId]);
 
-        // If there are no notes associated with the user, create a placeholder note
-        if (dbResult.rows.length === 0) {
-            const currentTime = new Date(Date.now()).toISOString();
-            const createResult = await client.query(`
-                INSERT INTO notes (title, body, user_id, time_created, time_modified)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING *
-            `, ["placeholder", "this is a placeholder note", userId, currentTime, currentTime]);
-            finalResult = createResult;
-        }
-        else {
-            finalResult = dbResult;
-        }
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(finalResult.rows));
+        res.end(JSON.stringify(dbResult.rows));
     } catch (error) {
         console.error(error);
     } finally {
