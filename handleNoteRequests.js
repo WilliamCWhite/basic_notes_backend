@@ -1,4 +1,5 @@
 import pool from './db.js'
+// these functions are pretty self-explanatory
 
 async function handleNoteGetRequest(req, res, paths, userId) {
     const client = await pool.connect();
@@ -29,7 +30,6 @@ async function handleNotePostRequest(req, res, paths, userId) {
     })
     req.on('end', async () => {
         const data = JSON.parse(body);
-        console.log(data);
         try {
             const dbResult = await client.query(`
                 INSERT INTO notes(title, body, user_id, time_created, time_modified)
@@ -83,8 +83,6 @@ async function handleNoteDeleteRequest(req, res, paths, userId) {
             WHERE note_id = $1
             RETURNING *
         `, [idToDelete]);
-        console.log("We deleted a note, and this is the db result");
-        console.log(dbResult.rows);
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(dbResult.rows));
     } catch (error) {

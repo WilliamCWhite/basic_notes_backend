@@ -19,6 +19,7 @@ function parseURL(url) {
     return [paths, searches];
 }
 
+// Generates a random 20 character long key
 function generateKey() {
     let result = '';
     for (let i = 0; i < 20; i++) {

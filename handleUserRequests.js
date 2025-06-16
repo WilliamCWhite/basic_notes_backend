@@ -93,6 +93,7 @@ async function handleCreateUserRequest(req, res) {
     })
 }
 
+// checks if the user already exists in the database
 async function doesUserExist(username) {
     const client = await pool.connect();
     let result;
@@ -116,6 +117,7 @@ async function doesUserExist(username) {
     return result;
 }
 
+// gets the user id (that notes know about) from the key and the username
 async function idFromKeyUsername(key, username) {
     const client = await pool.connect();
     try {

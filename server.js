@@ -7,11 +7,6 @@ import { handleFetchUserRequest, handleCreateUserRequest, idFromKeyUsername } fr
 const server = http.createServer(async (req, res) => {
     const method = req.method.toUpperCase();
     const [paths, searches] = parseURL(req.url); //paths.length will never be 0
-    console.log("Received the following request:");
-    console.log(req.url);
-
-    console.log(`Request received! url = ${req.url} and method = ${req.method}`);
-    console.log(`Request origin = ${req.headers.origin}`);
 
     // Handle CORS
     const allowedOrigins = [
